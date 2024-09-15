@@ -142,6 +142,9 @@ function sendChatRequest(content) {
     ]
   };
 
+  // Exibe indicador de que a assistente está digitando
+  showTypingIndicator();
+
   fetch('http://localhost:8000/api/v1/screen-info', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -150,30 +153,42 @@ function sendChatRequest(content) {
     .then(response => response.json())
     .then(chatData => {
       const assistantResponse = chatData.choices[0].message.content;
-      addMessageToChat(assistantResponse, 'assistant-message');
-      // Converte a resposta em áudio
-      getAudioResponse(assistantResponse);
+
+      // Converte a resposta em áudio e, ao mesmo tempo, prepara a exibição da mensagem
+      getAudioResponse(assistantResponse)
+        .then(audioBase64 => {
+          // Remove o indicador de digitação
+          removeTypingIndicator();
+
+          // Exibe a mensagem com markdown renderizado
+          addMessageToChat('', 'assistant-message', assistantResponse);
+
+          // Inicia a reprodução do áudio imediatamente
+          playAudioFromBase64(audioBase64);
+        })
+        .catch(error => {
+          console.error('Erro no text-to-speech:', error);
+          removeTypingIndicator();
+          addMessageToChat('Desculpe, houve um erro ao processar sua pergunta.', 'assistant-message');
+        });
     })
     .catch(error => {
       console.error('Erro na conversa:', error);
+      removeTypingIndicator();
       addMessageToChat('Desculpe, houve um erro ao processar sua pergunta.', 'assistant-message');
     });
 }
 
 // Função para obter o áudio da resposta
 function getAudioResponse(text) {
-  fetch('http://localhost:8000/api/v1/text-to-speech', {
+  return fetch('http://localhost:8000/api/v1/text-to-speech', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: text })
   })
     .then(response => response.json())
     .then(audioData => {
-      const audioBase64 = audioData.audio;
-      playAudioFromBase64(audioBase64);
-    })
-    .catch(error => {
-      console.error('Erro no text-to-speech:', error);
+      return audioData.audio;
     });
 }
 
@@ -184,14 +199,24 @@ function playAudioFromBase64(base64Audio) {
 }
 
 // Função para adicionar mensagens ao chat
-function addMessageToChat(messageContent, messageClass) {
+function addMessageToChat(messageContent, messageClass, fullText = '') {
   const messageElement = document.createElement('div');
   messageElement.className = `message ${messageClass}`;
   
-  messageElement.innerHTML = `<p>${messageContent}</p>`;
-  
-  chatWindow.appendChild(messageElement);
-  chatWindow.scrollTop = chatWindow.scrollHeight;
+  if (fullText) {
+    // Parse o markdown para HTML
+    const rawHtml = marked.parse(fullText);
+    // Sanitiza o HTML
+    const sanitizedHtml = DOMPurify.sanitize(rawHtml);
+
+    messageElement.innerHTML = sanitizedHtml;
+    chatWindow.appendChild(messageElement);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  } else {
+    messageElement.innerHTML = `<p>${messageContent}</p>`;
+    chatWindow.appendChild(messageElement);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
 }
 
 // Função para atualizar a última mensagem (usada após transcrição)
@@ -199,5 +224,23 @@ function updateLastMessage(newText) {
   const lastMessage = chatWindow.lastElementChild;
   if (lastMessage) {
     lastMessage.innerHTML = `<p>${newText}</p>`;
+  }
+}
+
+// Função para mostrar o indicador de digitação
+function showTypingIndicator() {
+  const typingIndicator = document.createElement('div');
+  typingIndicator.id = 'typing-indicator';
+  typingIndicator.className = 'message assistant-message';
+  typingIndicator.innerHTML = '<p>Assistente está digitando...</p>';
+  chatWindow.appendChild(typingIndicator);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+// Função para remover o indicador de digitação
+function removeTypingIndicator() {
+  const typingIndicator = document.getElementById('typing-indicator');
+  if (typingIndicator) {
+    typingIndicator.remove();
   }
 }

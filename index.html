@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Assistente para Idosos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Tailwind CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Estilos Personalizados -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-4">
+    <div id="app" class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+      <!-- Cabeçalho -->
+      <div class="bg-blue-500 p-4 flex items-center">
+        <img src="robo.png" alt="Assistente" class="h-8 w-8 mr-2">
+        <h1 class="text-white text-xl font-bold">Assistente</h1>
+      </div>
+      <!-- Tela de Chat -->
+      <div id="chat-section" class="flex flex-col h-screen">
+        <div id="chat-window" class="flex-1 overflow-y-auto p-4 bg-gray-50 flex flex-col">
+          <!-- Mensagens serão adicionadas aqui -->
+        </div>
+        <!-- Entrada de Mensagens -->
+        <div class="p-4 bg-white flex items-center">
+          <button id="upload-button" class="bg-blue-500 text-white p-2 rounded-full mr-2 focus:outline-none">
+            <!-- Ícone de upload -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+          <button id="record-button" class="flex-1 bg-green-500 text-white py-2 rounded-full focus:outline-none">
+            <span id="record-button-text">Pressione para falar</span>
+          </button>
+        </div>
+        <!-- Input de Upload de Imagem (Oculto) -->
+        <input type="file" id="image-input" accept="image/*" class="hidden" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>

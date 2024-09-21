@@ -1,4 +1,7 @@
 // Seleção de elementos
+
+const HOST = "http://localhost:8000";
+
 const imageInput = document.getElementById('image-input');
 const uploadButton = document.getElementById('upload-button');
 const recordButton = document.getElementById('record-button');
@@ -89,7 +92,7 @@ function processAudio(audioBlob) {
   const formData = new FormData();
   formData.append('data', audioBlob, 'audio.mp3');
 
-  fetch('http://localhost:8000/api/v1/transcriptions', {
+  fetch(`${HOST}/api/v1/transcriptions`, {
     method: 'POST',
     body: formData
   })
@@ -145,7 +148,7 @@ function sendChatRequest(content) {
   // Exibe indicador de que a assistente está digitando
   showTypingIndicator();
 
-  fetch('http://localhost:8000/api/v1/screen-info', {
+  fetch(`${HOST}/api/v1/screen-info`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -181,7 +184,7 @@ function sendChatRequest(content) {
 
 // Função para obter o áudio da resposta
 function getAudioResponse(text) {
-  return fetch('http://localhost:8000/api/v1/text-to-speech', {
+  return fetch(`${HOST}/api/v1/text-to-speech`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: text })

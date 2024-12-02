@@ -1,6 +1,6 @@
 // Seleção de elementos
 
-const HOST = "http://localhost:8000";
+const HOST = "https://accurately-great-mallard.ngrok-free.app:8000";
 
 const imageInput = document.getElementById('image-input');
 const uploadButton = document.getElementById('upload-button');
